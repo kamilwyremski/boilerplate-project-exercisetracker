@@ -100,15 +100,19 @@ app.post('/api/users', async (req, res) => {
 app.post('/api/users/:_id/exercises', (req, res) => {
   try {
     const { _id } = req.params;
-    const { description, duration, date } = req.body;
+    let { description, duration, date } = req.body;
 
     if (duration <= 0) {
       return res.status(400).json({ error: 'Duration must be greater than 0' });
     }
 
-    const isValidDate = !isNaN(Date.parse(date));
-    if (!isValidDate) {
-      return res.status(400).json({ error: 'Invalid date format' });
+    if(date){
+      const isValidDate = !isNaN(Date.parse(date));
+      if (!isValidDate) {
+        return res.status(400).json({ error: 'Invalid date format' });
+      }
+    }else{
+      date = new Date();
     }
 
     const user = urlDatabase.users.find((user) => user._id === _id);
@@ -130,10 +134,11 @@ app.post('/api/users/:_id/exercises', (req, res) => {
     saveDatabase();
 
     res.json({
+      _id: user._id, 
       username: user.username,
+      date: new Date(date).toDateString(),
+      duration: parseInt(duration),
       description,
-      duration,
-      date,
     });
   } catch (error) {
     console.error(error);
@@ -152,7 +157,7 @@ app.get('/api/users/:_id/logs', (req, res) => {
       return res.status(404).json({ error: 'User not found' });
     }
 
-    let userLogs = user.log;
+    let userLogs = user.log || [];
 
     if (from) {
       userLogs = userLogs.filter((log) => log.date >= from);
@@ -167,17 +172,31 @@ app.get('/api/users/:_id/logs', (req, res) => {
     }
 
     const response = {
-      username: user.username,
-      count: userLogs.length,
       _id: user._id,
+      username: user.username,
+      count: userLogs?.length,
       log: userLogs.map((log) => ({
         description: log.description,
-        duration: log.duration,
+        duration: parseInt(log.duration),
         date: new Date(log.date).toDateString(),
       })),
     };
 
     res.json(response);
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({ error: 'Internal Server Error' });
+  }
+});
+
+app.get('/api/users', (req, res) => {
+  try {
+    const userList = urlDatabase.users.map((user) => ({
+      _id: user._id,
+      username: user.username,
+    }));
+
+    res.json(userList);
   } catch (error) {
     console.error(error);
     res.status(500).json({ error: 'Internal Server Error' });
