@@ -1,0 +1,30 @@
+{
+  "users": [
+    {
+      "username": "kamil",
+      "_id": "bp59fe109",
+      "log": [
+        {
+          "description": "erer",
+          "duration": "22",
+          "date": "2222-11-01"
+        },
+        {
+          "description": "erer",
+          "duration": "22",
+          "date": "2222-11-01"
+        },
+        {
+          "description": "erer",
+          "duration": "22",
+          "date": "2222-11-01"
+        },
+        {
+          "description": "erer",
+          "duration": "22",
+          "date": "2222-11-01"
+        }
+      ]
+    }
+  ]
+}
